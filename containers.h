@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include <assert.h>
 
 
 typedef struct
@@ -16,13 +17,29 @@ typedef struct
 	size_t elementSize;
 }Vector;
 
+
+typedef struct
+{
+	void* data;
+	uint16_t capacity;
+	uint16_t size;
+	size_t elementSize;
+}Stack;
+
 //####################################################################### vector ####################################################
 void	vector_construct(Vector *const vec, size_t const elementSize);
 void 	vector_destruct(Vector const *const vec);
-void    vector_element_pop(Vector *const vec, void *const element);
 void* 	vector_data_get(Vector *const vec);
 void    vector_reserve(Vector *const vec, uint16_t const newCapacity);
 
+
+#define vector_element_insert(vec, index, element)\
+	if ((vec)->size == (vec)->capacity)\
+	{\
+		(vec)->data = realloc((vec)->data, (vec)->elementSize * (vec)->capacity * 2);\
+		(vec)->capacity *= 2;\
+	}\
+	(vec)->data[index] = element;
 
 #define vector_element_push(vec, Type, element)\
 	if ((vec)->size == (vec)->capacity)\
@@ -30,8 +47,7 @@ void    vector_reserve(Vector *const vec, uint16_t const newCapacity);
 		(vec)->data = realloc((vec)->data, (vec)->elementSize * (vec)->capacity * 2);\
 		(vec)->capacity *= 2;\
 	}\
-	((Type*)(vec)->data)[(vec)->size] = element;\
-	++(vec)->size;
+	((Type*)(vec)->data)[(vec)->size++] = element;\
 
 
 #define vector_foreach(vec, Type, element)\
@@ -50,7 +66,13 @@ void    vector_reserve(Vector *const vec, uint16_t const newCapacity);
 			--(vec)->size;\
 			break;\
 		}\
-	} //everything wrapped in curly braces to limit the scope of the variable declared in vector_forach		
+	} //everything wrapped in curly braces to limit the scope of the variable declared in vector_forach	
+
+#define vector_element_pop(vec, Type)\
+	{\
+		Type const retVal = ((Type*)(vec)->data)[--(vec)size];\
+		retVal;\
+	}
 	
 
 //############################################################################################################hash stuff
@@ -64,31 +86,26 @@ void    vector_reserve(Vector *const vec, uint16_t const newCapacity);
 #define hash(s)       ((uint32_t)(H256(s, 0, 0) ^ (H256(s, 0, 0) >> 16)))
 
 
-//############################################################################################################array stuff
+//##############################################################################################################stack
 
-#define array_forach(array, Type, element)\
+void	stack_construct(Stack *const stack, size_t const elementSize);
+void 	stack_destruct(Stack const *const stack);
+void    stack_reserve(Stack *const stack, uint16_t const newCapacity);
+bool    stack_isEmpty(Stack const *const stack);
 
-//####################################################################################################Macro Magic
 
+#define stack_element_push(stack, Type, element)\
+	if ((stack)->size == (stack)->capacity)\
+	{\
+		(stack)->data = realloc((stack)->data, (stack)->elementSize * (stack)->capacity * 2);\
+		(stack)->capacity *= 2;\
+	}\
+	((Type*)(stack)->data)[(stack)->size++] = element; //set element THEN increment size
 
-#define BX_foreach(Join,What, ...) BX_foreach_(BX_argc(__VA_ARGS__), Join, What, __VA_ARGS__)
-
-#define BX_foreach_(N, Join, What, ...) BX_paste(BX_cat(BX_foreach_, N)(Join, What, __VA_ARGS__))
-#define BX_cat(X,Y)  BX_cat_(X,Y) //{{{
-#define BX_cat_(X,Y) X##Y //}}}
-#define BX_call_first(Fn,...) Fn ( __VA_ARGS__ )
-#define BX_paste(...) __VA_ARGS__
-
-#define BX_argc(...) BX_argc_(X,__VA_ARGS__) //{{{
-#define BX_argc_(...) BX_argc__(,__VA_ARGS__,8,7,6,5,4,3,2,1,0,0)
-#define BX_argc__(_,_0,_1,_2,_3,_4,_5,_6,_7,_8,Cnt,...) Cnt //}}}
-#define BX_foreach_1(Join, What,  x) BX_call_first(What,  x)
-#define BX_foreach_2(Join, What,  x,...)BX_call_first(What,x) Join BX_foreach_1(Join, What,  __VA_ARGS__)
-#define BX_foreach_3(Join, What,  x,...)BX_call_first(What,x) Join BX_foreach_2(Join, What,  __VA_ARGS__)
-#define BX_foreach_4(Join, What,  x,...)BX_call_first(What,x) Join BX_foreach_3(Join, What,  __VA_ARGS__)
-#define BX_foreach_5(Join, What,  x,...)BX_call_first(What,x) Join BX_foreach_4(Join, What,  __VA_ARGS__)
-#define BX_foreach_6(Join, What,  x,...)BX_call_first(What,x) Join BX_foreach_5(Join, What,  __VA_ARGS__)
-#define BX_foreach_7(Join, What,  x,...)BX_call_first(What,x) Join BX_foreach_6(Join, What,  __VA_ARGS__)
-
+#define stack_element_pop(stack, Type)\
+	({\
+		Type const retVal = ((Type*)(stack)->data)[--(stack)->size];\
+		retVal;\
+	})
 
 #endif

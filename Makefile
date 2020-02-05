@@ -4,17 +4,16 @@ LFLAGS = -shared -o#flags for linking
 CFLAGS = -Wall -Werror -fpic -c -std=c99#flags for compilation
 
 
-make: vector.o 
-	gcc $(LFLAGS) libchecl.so vector.o
+make: 						  vector.o stack.o
+	gcc $(LFLAGS) libchecl.so vector.o stack.o
 	mv libchecl.so /usr/local/lib/
 	cp *.h /usr/local/include/checl/
 
 vector.o: vector.c
 	gcc $(CFLAGS) vector.c
 
-
-
-
+stack.o: stack.c
+	gcc $(CFLAGS) stack.c
 
 
 
@@ -23,4 +22,4 @@ test: test.o
 	./test
 
 test.o: test.c
-	gcc -c test.c
+	gcc -c -std=c99 test.c

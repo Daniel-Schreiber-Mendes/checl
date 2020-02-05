@@ -4,21 +4,24 @@
 
 int main()
 {
-	Vector v;
-	vector_construct(&v, sizeof(int));
+	Stack s;
+	stack_construct(&s, sizeof(int));
 
-	vector_element_push(&v, int, 1);
-	vector_element_push(&v, int, 2);
-	vector_element_push(&v, int, 3);
+	stack_element_push(&s, int, 1);
+	stack_element_push(&s, int, 2);
+	stack_element_push(&s, int, 3);
 
-	vector_element_erase(&v, int, 3);
-	vector_element_erase(&v, int, 1);
 	
-	vector_foreach(&v, int, element)
-	{
-		printf("%i\n", element);
-	}
+	printf("%i\n", stack_element_pop(&s, int));
 
-	vector_destruct(&v);
+	stack_destruct(&s);
+
+
+	for(int i=0; i < 100; ++i)
+	{	
+		Vector v;
+		vector_construct(&v, sizeof(int));
+		vector_destruct(&v);
+	}
 	return 0;
 }
