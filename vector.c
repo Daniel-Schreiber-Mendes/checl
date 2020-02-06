@@ -17,12 +17,6 @@ void vector_destruct(Vector const *const vec)
 }
 
 
-inline void* vector_data_get(Vector *const vec)
-{
-	return vec->data;
-}
-
-
 inline void vector_reserve(Vector *const vec, uint16_t const newCapacity)
 {
 	vec->data = realloc(vec->data, vec->elementSize * newCapacity);
