@@ -32,13 +32,6 @@ void 	vector_destruct(Vector const *const vec);
 void    vector_reserve(Vector *const vec, uint16_t const newCapacity);
 
 
-#define vector_element_insert(vec, Type, index, element)\
-	if (index >= (vec)->capacity)\
-	{\
-		(vec)->data = realloc((vec)->data, (vec)->elementSize * (index + 8));\
-		(vec)->capacity = index + 8;\
-	}\
-	((Type*)(vec)->data)[index] = element;
 
 #define vector_element_push(vec, Type, element)\
 	if ((vec)->size == (vec)->capacity)\
@@ -48,13 +41,6 @@ void    vector_reserve(Vector *const vec, uint16_t const newCapacity);
 	}\
 	((Type*)(vec)->data)[(vec)->size++] = element;
 
-
-#define vector_size_increment(vec)\
-	if ((vec)->size++ == (vec)->capacity)\
-	{\
-		(vec)->data = realloc((vec)->data, (vec)->elementSize * (vec)->capacity * 2);\
-		(vec)->capacity *= 2;\
-	}\
 
 #define vector_at(vec, index)\
 	({\
@@ -78,6 +64,13 @@ void    vector_reserve(Vector *const vec, uint16_t const newCapacity);
 			break;\
 		}\
 	} //everything wrapped in curly braces to limit the scope of the variable declared in vector_forach	
+
+/*
+#define vector_element_erase_swap(vec, Type, index)\
+	(
+		//&(vec)->data =
+	)*/
+
 
 #define vector_element_pop(vec, Type)\
 	{\
