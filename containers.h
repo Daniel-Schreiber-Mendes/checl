@@ -11,20 +11,32 @@
 
 typedef struct
 {
-	void* data; 
+	void *data; 
 	uint16_t capacity;
 	uint16_t size; //number of elements currently present in the vector
 	size_t elementSize;
-}Vector;
+}
+Vector;
 
 
 typedef struct
 {
-	void* data;
+	void *data;
 	uint16_t capacity;
 	uint16_t size;
 	size_t elementSize;
-}Stack;
+}
+Stack;
+
+
+typedef struct
+{
+	uint16_t capacity;
+	uint16_t size;
+	size_t elementSize;
+	void **data;
+}
+HashMap;
 
 //####################################################################### vector ####################################################
 void	vector_construct(Vector *const vec, size_t const elementSize);
@@ -82,12 +94,32 @@ void    vector_reserve(Vector *const vec, uint16_t const newCapacity);
 //############################################################################################################hash stuff
 //does compile time hashing of string
 
-#define   H1(s, i, x) (x * 65599u + (uint8_t)s[(i) < sizeof(s) ? sizeof(s) - 1 - (i) : sizeof(s)])
-#define   H4(s, i, x) H1(s, i, H1(s, i + 1, H1(s, i + 2, H1(s, i + 3, x))))
-#define  H16(s, i, x) H4(s, i, H4(s, i + 4, H4(s, i + 8, H4(s, i + 12, x))))
-#define  H64(s, i, x) H16(s, i, H16(s, i + 16, H16(s, i + 32, H16(s, i + 48, x))))
-#define H256(s, i, x) H64(s, i, H64(s, i + 64, H64(s, i + 128, H64(s, i + 192, x))))
-#define hash(s)       ((uint32_t)(H256(s, 0, 0) ^ (H256(s, 0, 0) >> 16)))
+void hashMap_destruct(HashMap const *const m);
+void hashMap_pointers_free(HashMap const *const m);
+
+//key has to be a string
+#define hashMap_construct(map_ptr, cap)\
+	(map_ptr)->capacity = cap * 10;\
+	(map_ptr)->data = calloc((map_ptr)->capacity, sizeof(void*));
+
+#define hashMap_element_insert(map_ptr, key, value)\
+	assert((map_ptr)->data[hash(key) % (map_ptr)->capacity] == NULL);\
+	(map_ptr)->data[hash(key) % (map_ptr)->capacity] = (value);
+
+#define hashMap_element_get(map_ptr, type, key)\
+	({\
+		*((type*)(map_ptr)->data[hash(key) % (map_ptr)->capacity]);\
+	})
+
+
+#define strnlen(s) sizeof(s) / sizeof(char)
+#define hash32(s) (strnlen(s) > 1 ?     s[31] * s[31] : 128) + s[31] * 64
+#define hash16(s) (strnlen(s) > 1 ? hash32(s) * s[15] : 128) + s[15] * 32
+#define hash8(s)  (strnlen(s) > 1 ? hash16(s) * s[7]  : 128) + s[7]  * 16
+#define hash4(s)  (strnlen(s) > 1 ? hash8(s) * s[3]   : 128) + s[3]  * 8
+#define hash2(s)  (strnlen(s) > 1 ? hash4(s) * s[1]   : 128) + s[1]  * 4
+#define hash1(s)  (strnlen(s) > 1 ? hash2(s) * s[0]   : 128) + s[0]  * 2
+#define hash(key) (hash1(#key))
 
 
 //##############################################################################################################stack

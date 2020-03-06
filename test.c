@@ -4,24 +4,18 @@
 
 int main()
 {
-	Stack s;
-	stack_construct(&s, sizeof(int));
+	HashMap m;
+	int *p = malloc(sizeof(int));
+	*p = 10;
 
-	stack_element_push(&s, int, 1);
-	stack_element_push(&s, int, 2);
-	stack_element_push(&s, int, 3);
+	hashMap_construct(&m, 200);
 
-	
-	printf("%i\n", stack_element_pop(&s, int));
+	hashMap_element_insert(&m, key1, p);
+	hashMap_element_insert(&m, key2, p);
 
-	stack_destruct(&s);
+	printf("%i\n", hashMap_element_get(&m, int, key1));
+	printf("%i\n", hashMap_element_get(&m, int, key2));
 
-
-	for(int i=0; i < 100; ++i)
-	{	
-		Vector v;
-		vector_construct(&v, sizeof(int));
-		vector_destruct(&v);
-	}
+	hashMap_destruct(&m);
 	return 0;
 }
