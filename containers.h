@@ -7,16 +7,10 @@
 #include <stdlib.h>
 
 
-#define CHECL_DEBUG
+//#define CHECL_MEMLOG
+#define CHECL_ASSERT
 
-
-#ifdef CHECL_DEBUG
-	#define checl_assert(expr)\
-		if (!(expr))\
-		{\
-			printf("Checl-Assertion: %s failed. Line: %u, File: %s\n", #expr, __LINE__, __FILE__);\
-			exit(-1);\
-		}
+#ifdef CHECL_MEMLOG
 
 	#define checl_malloc(size)\
 	({\
@@ -45,12 +39,20 @@
 		printf("Checl-Deallocation:               line: %.3i | file: %s\n", __LINE__, __FILE__);\
 		printf("\033[0m");\
 	})
-
-
 #else
-	#define free_debug(p) free(p)
-	#define malloc_debug(size) malloc(size)
-	#define calloc_debug(num, size) calloc(num, size)
+	#define checl_free(p) free(p)
+	#define checl_malloc(size) malloc(size)
+	#define checl_calloc(num, size) calloc(num, size)
+#endif
+
+#ifdef CHECL_ASSERT
+	#define checl_assert(expr)\
+		if (!(expr))\
+		{\
+			printf("Checl-Assertion: %s failed. Line: %u, File: %s\n", #expr, __LINE__, __FILE__);\
+			exit(-1);\
+		}
+#else
 	#define checl_assert(expr) (void)0
 #endif
 
