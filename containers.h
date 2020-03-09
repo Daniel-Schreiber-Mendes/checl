@@ -1,12 +1,59 @@
 #ifndef CONTAINERS_H
 #define CONTAINERS_H
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <string.h>
-#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+
+#define CHECL_DEBUG
+
+
+#ifdef CHECL_DEBUG
+	#define checl_assert(expr)\
+		if (!(expr))\
+		{\
+			printf("Checl-Assertion: %s failed. Line: %u, File: %s\n", #expr, __LINE__, __FILE__);\
+			exit(-1);\
+		}
+
+	#define checl_malloc(size)\
+	({\
+		void* retVal = malloc((size));\
+		printf("\033[0;34m");\
+		printf("Checl-Allocation:   bytes: %.4u | line: %.3i | file: %s\n", (uint16_t)size, __LINE__, __FILE__ );\
+		printf("\033[0m");\
+		retVal;\
+	})
+
+
+	#define checl_calloc(num, size)\
+	({\
+		void* retVal = calloc((num), (size));\
+		printf("\033[0;34m");\
+		printf("Checl-Allocation:   bytes: %.4u | line: %.3i | file: %s\n", (uint16_t)size, __LINE__, __FILE__ );\
+		printf("\033[0m");\
+		retVal;\
+	})
+
+	//changes font color to green, print message, reset font color
+	#define checl_free(p)\
+	({\
+		free((p));\
+		printf("\033[0;32m");\
+		printf("Checl-Deallocation:               line: %.3i | file: %s\n", __LINE__, __FILE__);\
+		printf("\033[0m");\
+	})
+
+
+#else
+	#define free_debug(p) free(p)
+	#define malloc_debug(size) malloc(size)
+	#define calloc_debug(num, size) calloc(num, size)
+	#define checl_assert(expr) (void)0
+#endif
+
 
 
 typedef struct
@@ -14,7 +61,7 @@ typedef struct
 	void *data; 
 	uint16_t capacity;
 	uint16_t size; //number of elements currently present in the vector
-	size_t elementSize;
+	uint16_t elementSize;
 }
 Vector;
 
@@ -24,7 +71,7 @@ typedef struct
 	void *data;
 	uint16_t capacity;
 	uint16_t size;
-	size_t elementSize;
+	uint16_t elementSize;
 }
 Stack;
 
@@ -33,13 +80,13 @@ typedef struct
 {
 	uint16_t capacity;
 	uint16_t size;
-	size_t elementSize;
+	uint16_t elementSize;
 	void **data;
 }
 HashMap;
 
 //####################################################################### vector ####################################################
-void	vector_construct(Vector *const vec, size_t const elementSize);
+void	vector_construct(Vector *const vec, uint16_t const elementSize);
 void 	vector_destruct(Vector const *const vec);
 void    vector_reserve(Vector *const vec, uint16_t const newCapacity);
 
@@ -94,37 +141,33 @@ void    vector_reserve(Vector *const vec, uint16_t const newCapacity);
 //############################################################################################################hash stuff
 //does compile time hashing of string
 
+void hashMap_construct(HashMap *const m, uint16_t const capacity);
 void hashMap_destruct(HashMap const *const m);
 void hashMap_pointers_free(HashMap const *const m);
 
 //key has to be a string
-#define hashMap_construct(map_ptr, cap)\
-	(map_ptr)->capacity = cap * 10;\
-	(map_ptr)->data = calloc((map_ptr)->capacity, sizeof(void*));
-
 #define hashMap_element_insert(map_ptr, key, value)\
-	assert((map_ptr)->data[hash(key) % (map_ptr)->capacity] == NULL);\
-	(map_ptr)->data[hash(key) % (map_ptr)->capacity] = (value);
+	checl_assert((map_ptr)->data[key] == NULL);\
+	checl_assert(key < (map_ptr)->capacity);\
+	(map_ptr)->data[key] = (value);
 
-#define hashMap_element_get(map_ptr, type, key)\
+#define hashMap_element_get(map_ptr, Type, key)\
 	({\
-		*((type*)(map_ptr)->data[hash(key) % (map_ptr)->capacity]);\
+		checl_assert(key < (map_ptr)->capacity);\
+		(Type*)(map_ptr)->data[key];\
 	})
 
+#define strrng(s, i) (i < (sizeof(s) / sizeof(char)))
+#define hashMap_hash(map_ptr, key) (hash(#key) % (map_ptr)->capacity)
 
-#define strnlen(s) sizeof(s) / sizeof(char)
-#define hash32(s) (strnlen(s) > 1 ?     s[31] * s[31] : 128) + s[31] * 64
-#define hash16(s) (strnlen(s) > 1 ? hash32(s) * s[15] : 128) + s[15] * 32
-#define hash8(s)  (strnlen(s) > 1 ? hash16(s) * s[7]  : 128) + s[7]  * 16
-#define hash4(s)  (strnlen(s) > 1 ? hash8(s) * s[3]   : 128) + s[3]  * 8
-#define hash2(s)  (strnlen(s) > 1 ? hash4(s) * s[1]   : 128) + s[1]  * 4
-#define hash1(s)  (strnlen(s) > 1 ? hash2(s) * s[0]   : 128) + s[0]  * 2
-#define hash(key) (hash1(#key))
+#define hash_char(s, i) (strrng(s, i) ? (uint16_t)(s[i] * s[i] * i | s[i] & i * s[i]) : (uint16_t)0)
+#define hash(s) (hash_char(s, 0) + hash_char(s, 1) + hash_char(s, 2) + hash_char(s, 3) + hash_char(s, 4) + hash_char(s, 5) + hash_char(s, 6) + \
+				hash_char(s, 7) + hash_char(s, 8) + hash_char(s, 9) + hash_char(s, 10) + hash_char(s, 11) + hash_char(s, 12) + hash_char(s, 13))
 
 
 //##############################################################################################################stack
 
-void	stack_construct(Stack *const stack, size_t const elementSize);
+void	stack_construct(Stack *const stack, uint16_t const elementSize);
 void 	stack_destruct(Stack const *const stack);
 void    stack_reserve(Stack *const stack, uint16_t const newCapacity);
 bool    stack_isEmpty(Stack const *const stack);

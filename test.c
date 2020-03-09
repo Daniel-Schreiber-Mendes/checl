@@ -1,21 +1,24 @@
 #include "containers.h"
 
 
+typedef struct
+{
+	int x[10];
+}Type;
+
 
 int main()
 {
 	HashMap m;
-	int *p = malloc(sizeof(int));
-	*p = 10;
+	Type *p = malloc(sizeof(Type));
+	p->x[0]= 10;
 
-	hashMap_construct(&m, 200);
+	hashMap_construct(&m, 6);
 
-	hashMap_element_insert(&m, key1, p);
-	hashMap_element_insert(&m, key2, p);
-
-	printf("%i\n", hashMap_element_get(&m, int, key1));
-	printf("%i\n", hashMap_element_get(&m, int, key2));
+	hashMap_element_insert(&m, hashMap_hash(&m, key1), p);
+	hashMap_element_insert(&m, hashMap_hash(&m, key2), p);
 
 	hashMap_destruct(&m);
+	free(p);
 	return 0;
 }
