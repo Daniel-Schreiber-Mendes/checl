@@ -81,11 +81,16 @@ Stack;
 typedef struct
 {
 	uint16_t capacity;
-	uint16_t size;
-	uint16_t elementSize;
 	void **data;
 }
 HashMap;
+
+
+typedef struct
+{
+	void *data;
+	uint16_t capacity;
+}RingBuffer;
 
 //####################################################################### vector ####################################################
 void	vector_construct(Vector *const vec, uint16_t const elementSize);
@@ -162,7 +167,7 @@ void hashMap_pointers_free(HashMap const *const m);
 #define strrng(s, i) (i < (sizeof(s) / sizeof(char)))
 #define hashMap_hash(map_ptr, key) (hash(#key) % (map_ptr)->capacity)
 
-#define hash_char(s, i) (strrng(s, i) ? (uint16_t)(s[i] * s[i] * i | s[i] & i * s[i]) : (uint16_t)0)
+#define hash_char(s, i) (strrng(s, i) ? (uint16_t)(s[i] * s[i] * i | s[i] & i * s[i] ^ i) : (uint16_t)0)
 #define hash(s) (hash_char(s, 0) + hash_char(s, 1) + hash_char(s, 2) + hash_char(s, 3) + hash_char(s, 4) + hash_char(s, 5) + hash_char(s, 6) + \
 				hash_char(s, 7) + hash_char(s, 8) + hash_char(s, 9) + hash_char(s, 10) + hash_char(s, 11) + hash_char(s, 12) + hash_char(s, 13))
 

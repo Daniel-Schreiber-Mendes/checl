@@ -1,7 +1,7 @@
 
 
 LFLAGS = -shared -o#flags for linking
-CFLAGS = -Wall -Werror -g -fpic -c -std=c99#flags for compilation
+CFLAGS = -Wall -Werror -g -fpic -c -std=c99 -O1#flags for compilation
 
 
 make: 						  vector.o stack.o hashMap.o
