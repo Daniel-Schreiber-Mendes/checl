@@ -96,7 +96,7 @@ typedef struct
 void	vector_construct(Vector *const vec, uint16_t const elementSize);
 void 	vector_destruct(Vector const *const vec);
 void    vector_reserve(Vector *const vec, uint16_t const newCapacity);
-
+void    vector_clear(Vector *const vec);
 
 
 #define vector_element_push(vec, Type, element)\

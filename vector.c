@@ -23,3 +23,9 @@ void vector_reserve(Vector *const vec, uint16_t const newCapacity)
 	vec->data = realloc(vec->data, vec->elementSize * newCapacity);
 	vec->capacity = newCapacity;
 }
+
+
+void vector_clear(Vector *const vec)
+{
+	vec->size = 0;
+}
