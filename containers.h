@@ -89,8 +89,11 @@ HashMap;
 typedef struct
 {
 	void *data;
+	int *prioritys;
+	uint16_t elementSize;
 	uint16_t capacity;
-}RingBuffer;
+	uint16_t size;
+}PriorityQueue;
 
 //####################################################################### vector ####################################################
 void	vector_construct(Vector *const vec, uint16_t const elementSize);
@@ -148,9 +151,9 @@ void    vector_clear(Vector *const vec);
 //############################################################################################################hash stuff
 //does compile time hashing of string
 
-void hashMap_construct(HashMap *const m, uint16_t const capacity);
-void hashMap_destruct(HashMap const *const m);
-void hashMap_pointers_free(HashMap const *const m);
+void    hashMap_construct(HashMap *const m, uint16_t const capacity);
+void    hashMap_destruct(HashMap const *const m);
+void    hashMap_pointers_free(HashMap const *const m);
 
 //key has to be a string
 #define hashMap_element_insert(map_ptr, key, value)\
@@ -193,5 +196,16 @@ bool    stack_isEmpty(Stack const *const stack);
 		Type const retVal = ((Type*)(stack)->data)[--(stack)->size];\
 		retVal;\
 	})
+
+
+//##############################################################################################################PriorityQueue
+void priorityQueue_construct(PriorityQueue *const pq);
+void priorityQueue_destruct(PriorityQueue *const pq);
+void priorityQueue_reserve(PriorityQueue *const pq, uint16_t const new_cap);
+
+
+//#define priorityQueue_element_insert(pq, element, Type)
+//	((Type*)(pq)->data)[]
+
 
 #endif
