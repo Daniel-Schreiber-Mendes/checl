@@ -2,10 +2,10 @@
 #include <stdlib.h>
 
 
-void hashMap_construct(HashMap *const m, uint16_t const capacity)
+void hashMap_construct(HashMap *const m, uint16_t const cap)
 {
-	m->capacity = capacity * 20;
-	m->data = checl_calloc(m->capacity, sizeof m->data);
+	m->cap = cap * 20;
+	m->data = checl_calloc(m->cap, sizeof m->data);
 }
 
 

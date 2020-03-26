@@ -2,29 +2,27 @@
 #include <stdlib.h>
 
 
-void stack_construct(Stack *const stack, uint16_t const elementSize)
+void stack_construct(Stack *const s, uint16_t const elementSize, uint16_t const cap)
 {
-	stack->data = checl_malloc(elementSize);
-	stack->capacity = 1;
-	stack->size = 0;
-	stack->elementSize = elementSize;
+	s->data = checl_malloc((s->elementSize = elementSize) * (s->cap = cap));
+	s->size = 0;
 }
 
 
-void stack_destruct(Stack const *const stack)
+void stack_destruct(Stack const *const s)
 {
-	checl_free(stack->data); //stack is not responsible for freeing the actual data, just the array
+	checl_free(s->data); //stack is not responsible for freeing the actual data, just the array
 }
 
 
-void stack_reserve(Stack *const stack, uint16_t const newCapacity)
+void stack_reserve(Stack *const s, uint16_t const new_cap)
 {
-	stack->data = realloc(stack->data, stack->elementSize * newCapacity);
-	stack->capacity = newCapacity;
+	s->data = realloc(s->data, s->elementSize * new_cap);
+	s->cap = new_cap;
 }
 
 
-bool stack_isEmpty(Stack const *const stack)
+bool stack_empty(Stack const *const s)
 {
-	return stack->size == 0;
+	return s->size == 0;
 }

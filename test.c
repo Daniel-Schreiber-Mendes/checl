@@ -9,16 +9,9 @@ typedef struct
 
 int main()
 {
-	HashMap m;
-	Type *p = malloc(sizeof(Type));
-	p->x[0]= 10;
-
-	hashMap_construct(&m, 6);
-
-	hashMap_element_insert(&m, hashMap_hash(&m, key1), p);
-	hashMap_element_insert(&m, hashMap_hash(&m, key2), p);
-
-	hashMap_destruct(&m);
-	free(p);
+	Stack s;
+	stack_construct(&s, sizeof(int), 1);
+	stack_push(&s, int, 5);
+	printf("%i\n", stack_pop(&s, int));
 	return 0;
 }

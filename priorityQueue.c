@@ -4,7 +4,8 @@
 void priorityQueue_construct(PriorityQueue *const pc)
 {
 	pq->data = malloc(pq->data, pq->elementSize * 8);
-	pq->prioritys = malloc(pq->data, sizeof *pq->prioritys * 8);
+	pq->prioritys = malloc(pq->data, sizeof *pq->prioritys * (pq->capacity = 8));
+	pq->size = 0;
 }
 
 
