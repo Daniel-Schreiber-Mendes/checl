@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 //#define CHECL_MEMLOG
@@ -57,6 +58,8 @@
 #endif
 
 
+typedef struct _List List;
+
 
 typedef struct
 {
@@ -86,6 +89,13 @@ typedef struct
 HashMap;
 
 
+struct _List
+{
+	List *next;
+	void *data;
+};
+
+
 //####################################################################### vector ####################################################
 void	vector_construct(Vector *const vec, uint16_t const elementSize);
 void 	vector_destruct(Vector const *const vec);
@@ -96,34 +106,37 @@ void    vector_clear(Vector *const vec);
 #define vector_push_back(vec, Type, element)\
 	if ((vec)->size == (vec)->cap)\
 	{\
-		(vec)->data = realloc((vec)->data, (vec)->elementSize * (vec)->cap * 2);\
-		(vec)->cap *= 2;\
+		(vec)->data = realloc((vec)->data, (vec)->elementSize * ((vec)->cap *= 2));\
 	}\
 	((Type*)(vec)->data)[(vec)->size++] = element;
 
 
-#define vector_at(vec, index)\
+#define vector_at(vec, Type, index)\
 	({\
-		(vec)->entitys[index];\
+		((Type*)(vec)->data)[index];\
 	})
 
-#define vector_foreach(vec, Type, element)\
-	Type element = ((Type*)(vec)->data)[0];\
-	for (uint16_t i=0; i < (vec)->size; element = ((Type*)(vec)->data)[i + 1], ++i)
+#define vector_foreach(vec, Type, alias)\
+	Type alias = ((Type*)(vec)->data)[0];\
+	for (uint16_t alias##i=0; alias##i < (vec)->size; alias = ((Type*)(vec)->data)[alias##i + 1], ++alias##i)
 
 
-#define vector_erase(vec, Type, element)\
+#define vector_back_get(vec, Type)\
+	({\
+		if ((vec)->size > 0)\
+			((Type*)(vec)->data)[(vec)->size - 1];\
+		else\
+			NULL;\
+	})
+
+
+#define vector_erase(vec, Type, index)\
 	{\
-	vector_foreach(vec, Type, currentElement)\
-		if (currentElement == element)\
-		{\
-			memmove((vec)->data + (vec)->elementSize * i,\
-				    (vec)->data + (vec)->elementSize * (i + 1),\
-					(vec)->elementSize * ((vec)->cap - i - 1));\
-			--(vec)->size;\
-			break;\
-		}\
-	} //everything wrapped in curly braces to limit the scope of the variable declared in vector_forach	
+		if ((vec)->size > 1)\
+			memmove(&((Type*)(vec)->data)[index], &((Type*)(vec)->data)[index + 1], ((vec)->size-- - (index - 1)) * (vec)->elementSize);\
+		else\
+			(vec)->size = 0;\
+	}
 
 
 #define vector_pop_back(vec, Type)\
@@ -189,6 +202,19 @@ bool    stack_empty(Stack const *const s);
 		Type const retVal = ((Type*)(stack)->data)[(stack)->size - 1];\
 		retVal;\
 	})
+
+
+//##############################################################################################################list
+
+//currently can only store pointers
+
+void  list_construct(List *const l);
+void  list_destruct(List *const l);
+void  list_push_back(List *const l, void *data);
+void  list_back(List *const l, void* data);
+void* _list_get(List *const l, uint16_t const i);
+
+#define list_get(l_ptr, i, Type) ((Type)_list_get(l_ptr, i))
 
 
 #endif

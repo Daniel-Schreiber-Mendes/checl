@@ -9,9 +9,22 @@ typedef struct
 
 int main()
 {
-	Stack s;
-	stack_construct(&s, sizeof(int), 1);
-	stack_push(&s, int, 5);
-	printf("%i\n", stack_pop(&s, int));
+	Vector v;
+
+	vector_construct(&v, sizeof(int));
+	vector_push_back(&v, int, 1);
+	vector_push_back(&v, int, 2);
+	vector_push_back(&v, int, 3);
+	vector_push_back(&v, int, 4);
+
+
+	vector_erase(&v, int, 3);
+
+	vector_foreach(&v, int, i)
+	{
+		printf("%i\n", i);
+	}
+
+	vector_destruct(&v);
 	return 0;
 }

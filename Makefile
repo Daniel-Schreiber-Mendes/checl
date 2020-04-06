@@ -2,10 +2,11 @@
 
 LFLAGS = -shared -o#flags for linking
 CFLAGS = -Wall -Werror -g -fpic -c -std=c99 -O1#flags for compilation
+OBJFILES = vector.o stack.o hashMap.o list.o
 
 
-make: 						  vector.o stack.o hashMap.o
-	gcc $(LFLAGS) libchecl.so vector.o stack.o hashMap.o
+make: 						  $(OBJFILES)
+	gcc $(LFLAGS) libchecl.so $(OBJFILES)
 	mv libchecl.so /usr/local/lib/
 	cp *.h /usr/local/include/checl/
 
@@ -17,6 +18,9 @@ stack.o: stack.c
 
 hashMap.c: hashMap.c
 	gcc $(CFLAGS) hashMap.c
+
+list.c: list.c
+	gcc $(CFLAGS) list.c
 
 
 
