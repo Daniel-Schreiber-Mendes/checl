@@ -20,10 +20,14 @@ int main()
 
 	vector_erase(&v, int, 3);
 
-	vector_foreach(&v, int, i)
+	vector_pforeach(&v, int*, i)
 	{
-		printf("%i\n", i);
+		printf("%i\n", *i);
 	}
+
+	int x = 20;
+
+	printf("%i\n", vector_find_index(&v, int, &x));
 
 	vector_destruct(&v);
 	return 0;

@@ -121,12 +121,27 @@ void    vector_clear(Vector *const vec);
 	for (uint16_t alias##i=0; alias##i < (vec)->size; alias = ((Type*)(vec)->data)[alias##i + 1], ++alias##i)
 
 
-#define vector_back_get(vec, Type)\
+#define vector_pforeach(vec, Type, alias)\
+	Type alias = &((Type)(vec)->data)[0];\
+	for (uint16_t alias##i=0; alias##i < (vec)->size; alias = &((Type)(vec)->data)[alias##i + 1], ++alias##i)
+
+
+#define vector_back_get(vec, Type) ({ (vec)->size > 0 ? &((Type*)(vec)->data)[(vec)->size - 1] : NULL; })
+
+
+#define vector_find_index(vec, Type, element_ptr)\
 	({\
-		if ((vec)->size > 0)\
-			((Type*)(vec)->data)[(vec)->size - 1];\
-		else\
-			NULL;\
+		int32_t retval;\
+		int32_t index = -1;\
+		vector_pforeach(vec, Type*, element)\
+		{\
+			if (!memcmp(element, element_ptr, sizeof(Type)))\
+			{\
+				index = element##i;\
+				break;\
+			}\
+		}\
+		retval = index;\
 	})
 
 
