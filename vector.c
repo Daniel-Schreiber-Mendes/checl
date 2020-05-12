@@ -29,3 +29,17 @@ void vector_clear(Vector *const vec)
 {
 	vec->size = 0;
 }
+
+
+int vector_find(Vector const *const vec, void const *const data)
+{
+	void *element = vec->data;
+	for (uint16_t i=0; i < vec->size; element = vec->data + ++i * vec->elementSize)
+	{
+		if (!memcmp(element, data, vec->elementSize))
+		{
+			return i; //index of the item so one can access the vector there
+		}
+	}
+	return -1; //if item couldnt be found
+}

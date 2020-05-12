@@ -16,17 +16,17 @@ vector.o: vector.c
 stack.o: stack.c
 	gcc $(CFLAGS) stack.c
 
-hashMap.c: hashMap.c
+hashMap.o: hashMap.c
 	gcc $(CFLAGS) hashMap.c
 
-list.c: list.c
+list.o: list.c
 	gcc $(CFLAGS) list.c
 
 
 
-test: test.o
-	gcc -o test test.o -lchecl
+test: unit_test.o
+	gcc -o unit_test unit_test.o -lchecl
 	./test
 
-test.o: test.c
-	gcc -c -std=c99 test.c
+unit_test.o: unit_test.c
+	gcc -c -std=c99 unit_test.c

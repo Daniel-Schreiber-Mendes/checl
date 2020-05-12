@@ -97,10 +97,11 @@ struct _List
 
 
 //####################################################################### vector ####################################################
-void	vector_construct(Vector *const vec, uint16_t const elementSize);
-void 	vector_destruct(Vector const *const vec);
-void    vector_reserve(Vector *const vec, uint16_t const new_cap);
-void    vector_clear(Vector *const vec);
+void vector_construct(Vector *const vec, uint16_t const elementSize);
+void vector_destruct(Vector const *const vec);
+void vector_reserve(Vector *const vec, uint16_t const new_cap);
+void vector_clear(Vector *const vec);
+int  vector_find(Vector const *const vec, void const *const data);
 
 
 #define vector_push_back(vec, Type, element)\
@@ -118,7 +119,7 @@ void    vector_clear(Vector *const vec);
 
 #define vector_foreach(vec, Type, alias)\
 	Type alias = ((Type*)(vec)->data)[0];\
-	for (uint16_t alias##i=0; alias##i < (vec)->size; alias = ((Type*)(vec)->data)[alias##i + 1], ++alias##i)
+	for (uint16_t alias##i=0; alias##i < (vec)->size; alias = ((Type*)(vec)->data)[++alias##i])
 
 
 #define vector_pforeach(vec, Type, alias)\
@@ -127,22 +128,6 @@ void    vector_clear(Vector *const vec);
 
 
 #define vector_back_get(vec, Type) ({ (vec)->size > 0 ? &((Type*)(vec)->data)[(vec)->size - 1] : NULL; })
-
-
-#define vector_find_index(vec, Type, element_ptr)\
-	({\
-		int32_t retval;\
-		int32_t index = -1;\
-		vector_pforeach(vec, Type*, element)\
-		{\
-			if (!memcmp(element, element_ptr, sizeof(Type)))\
-			{\
-				index = element##i;\
-				break;\
-			}\
-		}\
-		retval = index;\
-	})
 
 
 #define vector_erase(vec, Type, index)\
@@ -180,12 +165,24 @@ void    hashMap_pointers_free(HashMap const *const m);
 		(Type*)(map_ptr)->data[key];\
 	})
 
+//iterates over all elements that are not NULL
+#define hashMap_foreach(map_ptr, Type, alias, expr)\
+	({\
+		Type alias;\
+		uint16_t alias##i=0;\
+		while (alias##i < (map_ptr)->cap)\
+		{\
+			if (((Type*)(map_ptr)->data)[alias##i]) { alias = ((Type*)(map_ptr)->data)[alias##i++]; }\
+			else { ++alias##i; continue; }\
+			(expr);\
+		}\
+	})
 
 
 //if index is in range of string length
 #define hashMap_hash(map_ptr, key) (hash(#key) % (map_ptr)->cap)
 #define hash(s) (hash_char(s, 0) + hash_char(s, 1) + hash_char(s, 2) + hash_char(s, 3)  + hash_char(s, 4)  + hash_char(s, 5)  + hash_char(s, 6) + hash_char(s, 7) + hash_char(s, 8) + hash_char(s, 9) + hash_char(s, 10) + hash_char(s, 11) + hash_char(s, 12) + hash_char(s, 13))
-#define hash_char(s, i) (i < (sizeof(s) / sizeof(char)) ? (uint16_t)(s[i] * s[i] * i | s[i] & i * s[i] ^ i) : 0)
+#define hash_char(s, i) (i < (sizeof(s) / sizeof(char)) ? (uint16_t)(s[i] * i | s[i] & i * s[i] | i) : 0)
 
 
 //##############################################################################################################stack
