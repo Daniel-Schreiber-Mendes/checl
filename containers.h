@@ -97,11 +97,12 @@ struct _List
 
 
 //####################################################################### vector ####################################################
-void vector_construct(Vector *const vec, uint16_t const elementSize);
-void vector_destruct(Vector const *const vec);
-void vector_reserve(Vector *const vec, uint16_t const new_cap);
-void vector_clear(Vector *const vec);
-int  vector_find(Vector const *const vec, void const *const data);
+void vector_construct(Vector *vec, uint16_t elementSize);
+void vector_destruct(Vector const *vec);
+void vector_reserve(Vector *vec, uint16_t new_cap);
+void vector_clear(Vector *vec);
+int  vector_find(Vector const *vec, void const *data);
+int  vector_subset_find(Vector const *vec, void const *data, uint16_t size, uint16_t offset);
 
 
 #define vector_push_back(vec, Type, element)\
@@ -114,6 +115,7 @@ int  vector_find(Vector const *const vec, void const *const data);
 
 #define vector_at(vec, Type, index)\
 	({\
+		checl_assert(index >= 0);\
 		((Type*)(vec)->data)[index];\
 	})
 
@@ -132,10 +134,21 @@ int  vector_find(Vector const *const vec, void const *const data);
 
 #define vector_erase(vec, Type, index)\
 	{\
+		checl_assert(index >= 0);\
 		if ((vec)->size > 1)\
 			memmove(&((Type*)(vec)->data)[index], &((Type*)(vec)->data)[index + 1], ((vec)->size-- - (index - 1)) * (vec)->elementSize);\
 		else\
 			(vec)->size = 0;\
+	}
+
+
+#define vector_unordered_erase(vec, Type, index)\
+	{\
+		checl_assert(index >= 0);\
+		checl_assert(index < (vec)->size);\
+		--(vec)->size\
+		if ((vec)->size > 0)\
+			((Type*)(vec)->data)[index] = ((Type*)(vec)->data)[(vec)->size];\
 	}
 
 

@@ -43,3 +43,16 @@ int vector_find(Vector const *const vec, void const *const data)
 	}
 	return -1; //if item couldnt be found
 }
+
+int vector_subset_find(Vector const *vec, void const *const data, uint16_t const size, uint16_t const offset)
+{
+	void *element = vec->data;
+	for (uint16_t i=0; i < vec->size; element = vec->data + ++i * vec->elementSize)
+	{
+		if (!memcmp(element + offset, data, size))
+		{
+			return i; //index of the item so one can access the vector there
+		}
+	}
+	return -1; //if item couldnt be found
+}
