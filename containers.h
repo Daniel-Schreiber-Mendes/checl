@@ -58,7 +58,7 @@
 #endif
 
 
-typedef struct _List List;
+typedef struct List List;
 
 
 typedef struct
@@ -89,7 +89,7 @@ typedef struct
 HashMap;
 
 
-struct _List
+struct List
 {
 	List *next;
 	void *data;
@@ -113,15 +113,11 @@ int  vector_subset_find(Vector const *vec, void const *data, uint16_t size, uint
 	((Type*)(vec)->data)[(vec)->size++] = element;
 
 
-#define vector_at(vec, Type, index)\
-	({\
-		checl_assert(index >= 0);\
-		((Type*)(vec)->data)[index];\
-	})
+#define vector_at(vec, Type, index) (((Type*)(vec)->data)[index])
 
 #define vector_foreach(vec, Type, alias)\
 	Type alias = ((Type*)(vec)->data)[0];\
-	for (uint16_t alias##i=0; alias##i < (vec)->size; alias = ((Type*)(vec)->data)[++alias##i])
+	for (uint16_t i=0; i < (vec)->size; alias = ((Type*)(vec)->data)[++i])
 
 
 #define vector_pforeach(vec, Type, alias)\
