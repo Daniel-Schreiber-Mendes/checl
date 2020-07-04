@@ -107,15 +107,13 @@ int  vector_subset_find(Vector const *vec, void const *data, uint16_t size, uint
 
 #define vector_push_back(vec, Type, element)\
 	if ((vec)->size == (vec)->cap)\
-	{\
 		(vec)->data = realloc((vec)->data, (vec)->elementSize * ((vec)->cap *= 2));\
-	}\
 	((Type*)(vec)->data)[(vec)->size++] = element;
 
 
 #define vector_at(vec, Type, index) (((Type*)(vec)->data)[index])
 
-#define vector_foreach(vec, Type, alias)\
+#define vector_vforeach(vec, Type, alias)\
 	Type alias = ((Type*)(vec)->data)[0];\
 	for (uint16_t i=0; i < (vec)->size; alias = ((Type*)(vec)->data)[++i])
 
@@ -191,7 +189,7 @@ void    hashMap_pointers_free(HashMap const *const m);
 //if index is in range of string length
 #define hashMap_hash(map_ptr, key) (hash(#key) % (map_ptr)->cap)
 #define hash(s) (hash_char(s, 0) + hash_char(s, 1) + hash_char(s, 2) + hash_char(s, 3)  + hash_char(s, 4)  + hash_char(s, 5)  + hash_char(s, 6) + hash_char(s, 7) + hash_char(s, 8) + hash_char(s, 9) + hash_char(s, 10) + hash_char(s, 11) + hash_char(s, 12) + hash_char(s, 13))
-#define hash_char(s, i) (i < (sizeof(s) / sizeof(char)) ? (uint16_t)(s[i] * i | s[i] & i * s[i] | i) : 0)
+#define hash_char(s, i) (i < sizeof(s) ? (uint16_t)(s[i] * i | s[i] & i * s[i] | i) : 0)
 
 
 //##############################################################################################################stack
