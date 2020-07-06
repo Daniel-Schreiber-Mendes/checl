@@ -1,28 +1,15 @@
+SRC = vector.c stack.c hashMap.c list.c sparseSet.c
+OBJ = $(SRC:.c=.o)
+LFLAGS = -shared -o
+CFLAGS = -Wall -Werror -g -fpic -c -std=c99
 
-
-LFLAGS = -shared -o#flags for linking
-CFLAGS = -Wall -Werror -g -fpic -c -std=c99 -O1#flags for compilation
-OBJFILES = vector.o stack.o hashMap.o list.o
-
-
-make: 						  $(OBJFILES)
-	gcc $(LFLAGS) libchecl.so $(OBJFILES)
+make: $(OBJ)
+	gcc $(LFLAGS) libchecl.so $(OBJ) -lchecl
 	mv libchecl.so /usr/local/lib/
 	cp *.h /usr/local/include/checl/
 
-vector.o: vector.c
-	gcc $(CFLAGS) vector.c
-
-stack.o: stack.c
-	gcc $(CFLAGS) stack.c
-
-hashMap.o: hashMap.c
-	gcc $(CFLAGS) hashMap.c
-
-list.o: list.c
-	gcc $(CFLAGS) list.c
-
-
+%.o: %.c
+	gcc -c $(CFLAGS) $*.c
 
 test: unit_test.o
 	gcc -o unit_test unit_test.o -lchecl

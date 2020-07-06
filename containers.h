@@ -107,6 +107,19 @@ typedef struct
 SparseSet;
 
 
+typedef struct
+{
+	void *sparse;
+	uint32_t sparseCapacity;
+
+	void *data;
+	void *dense;
+	uint32_t denseCapacity;
+	uint32_t denseSize;
+}
+DSparseSet; //sparseset with an additional array of data associatet with the dense array, it is called Data SparseSet
+
+
 //####################################################################### vector ####################################################
 void vector_construct(Vector *vec, uint16_t elementSize);
 void vector_destruct(Vector const *vec);
@@ -245,12 +258,42 @@ void* _list_get(List *l, uint16_t i);
 
 //#########################################################################################################sparseSet
 
+//this sparseset stores its keys as its elements, meaning no additional data. the type of the key has to be signed or unsigned int
+void sparseSet_construct(SparseSet *s, uint16_t elementSize, uint32_t elementCount);
+void sparseSet_destruct(SparseSet const *s);
 
-void sparseSet_construct();
-void sparseSet_destruct();
+#define sparseSet_insert(set, Type, key)\
+	if(key >= (set)->sparseCapacity)\
+		(set)->sparse = realloc((set)->sparse, sizeof(Type) * ((set)->sparseCapacity = key * 2));\
+	if((((Type*)(set)->sparse)[key] = (set)->denseSize++) >= (set)->denseCapacity)\
+		(set)->dense = realloc((set)->dense, sizeof(Type) * (uint32_t)((set)->denseCapacity = key * 1.5f));\
+	((Type*)(set)->dense)[((Type*)(set)->sparse)[key]] = key;
 
-#define sparseSet_insert()\
-#define sparseSet_
+#define sparseSet_erase(set, Type, key)\
+	((Type*)(set)->dense)[((Type*)(set)->sparse)[key]] = ((Type*)(set)->dense)[--(set)->denseSize];\
+	((Type*)(set)->sparse)[((Type*)(set)->dense)[((Type*)(set)->sparse)[key]]] = ((Type*)(set)->dense)[((Type*)(set)->sparse)[key]];
+
+
+void dsparseSet_construct(DSparseSet *s, uint16_t elementSize, uint16_t dataSize, uint32_t elementCount);
+void dsparseSet_destruct(DSparseSet const *s);
+
+#define dsparseSet_insert(set, Type, key, data)\
+	((Type*)(set)->dense)[((Type*)(set)->sparse)[key]] = key;
+
+//this needs to be checked because if it evaluates to false that means the key to be removed is the last one
+#define dsparseSet_erase(set, Type, key)\
+	if((set)->sparse[key] < (set)->denseSize - 1)\
+	{\
+		memcpy((set)->data + (set)->sparse[key] * sizeof(Type), (set)->data + (set)->denseSize * sizeof(Type), sizeof(Type));\
+		(set)->dense[(set)->sparse[key]] = (set)->dense[(set)->denseSize];\
+		(set)->sparse[key] = (set)->sparse[(set)->dense[(set)->denseSize]];\
+	}\
+	--(set)->denseSize;
+
+#define dsparseSet_get(set, Type, key)\
+	((Type*)(set)->data)[((Type*)(set)->dense)[((Type*)(set)->sparse)[key]]];
+
+
 
 
 #endif
