@@ -58,9 +58,6 @@
 #endif
 
 
-typedef struct List List;
-
-
 typedef struct
 {
 	void *data; 
@@ -81,19 +78,33 @@ typedef struct
 Stack;
 
 
+typedef uint16_t HashKey;
 typedef struct
 {
-	uint16_t cap;
+	HashKey cap;
 	void **data;
 }
 HashMap;
 
 
+typedef struct List List;
 struct List
 {
 	List *next;
 	void *data;
 };
+
+
+typedef struct
+{
+	void *sparse;
+	uint32_t sparseCapacity;
+
+	void *dense;
+	uint32_t denseCapacity;
+	uint32_t denseSize;
+}
+SparseSet;
 
 
 //####################################################################### vector ####################################################
@@ -117,14 +128,11 @@ int  vector_subset_find(Vector const *vec, void const *data, uint16_t size, uint
 	Type alias = ((Type*)(vec)->data)[0];\
 	for (uint16_t i=0; i < (vec)->size; alias = ((Type*)(vec)->data)[++i])
 
-
 #define vector_pforeach(vec, Type, alias)\
 	Type alias = &((Type)(vec)->data)[0];\
 	for (uint16_t alias##i=0; alias##i < (vec)->size; alias = &((Type)(vec)->data)[alias##i + 1], ++alias##i)
 
-
 #define vector_back_get(vec, Type) ({ (vec)->size > 0 ? &((Type*)(vec)->data)[(vec)->size - 1] : NULL; })
-
 
 #define vector_erase(vec, Type, index)\
 	{\
@@ -135,16 +143,13 @@ int  vector_subset_find(Vector const *vec, void const *data, uint16_t size, uint
 			(vec)->size = 0;\
 	}
 
-
 #define vector_unordered_erase(vec, Type, index)\
 	{\
 		checl_assert(index >= 0);\
 		checl_assert(index < (vec)->size);\
-		--(vec)->size\
-		if ((vec)->size > 0)\
+		if (--(vec)->size > 0)\
 			((Type*)(vec)->data)[index] = ((Type*)(vec)->data)[(vec)->size];\
 	}
-
 
 #define vector_pop_back(vec, Type)\
 	{\
@@ -156,9 +161,9 @@ int  vector_subset_find(Vector const *vec, void const *data, uint16_t size, uint
 //############################################################################################################hash stuff
 //does compile time hashing of string
 
-void    hashMap_construct(HashMap *const m, uint16_t const cap);
-void    hashMap_destruct(HashMap const *const m);
-void    hashMap_pointers_free(HashMap const *const m);
+void    hashMap_construct(HashMap *m, uint16_t cap);
+void    hashMap_destruct(HashMap const *m);
+void    hashMap_pointers_free(HashMap const *m);
 
 //key has to be a string
 #define hashMap_insert(map_ptr, key, value)\
@@ -185,6 +190,8 @@ void    hashMap_pointers_free(HashMap const *const m);
 		}\
 	})
 
+#define hashMap_erase(map, key) (map)->data[key] = 0;
+
 
 //if index is in range of string length
 #define hashMap_hash(map_ptr, key) (hash(#key) % (map_ptr)->cap)
@@ -194,10 +201,10 @@ void    hashMap_pointers_free(HashMap const *const m);
 
 //##############################################################################################################stack
 
-void	stack_construct(Stack *const s, uint16_t const elementSize, uint16_t const cap);
-void 	stack_destruct(Stack const *const s);
-void    stack_reserve(Stack *const s, uint16_t const new_cap);
-bool    stack_empty(Stack const *const s);
+void	stack_construct(Stack *s, uint16_t elementSize, uint16_t cap);
+void 	stack_destruct(Stack const *s);
+void    stack_reserve(Stack *s, uint16_t new_cap);
+bool    stack_empty(Stack const *s);
 
 
 #define stack_push(stack, Type, element)\
@@ -227,13 +234,23 @@ bool    stack_empty(Stack const *const s);
 
 //currently can only store pointers
 
-void  list_construct(List *const l);
-void  list_destruct(List *const l);
-void  list_push_back(List *const l, void *data);
-void  list_back(List *const l, void* data);
-void* _list_get(List *const l, uint16_t const i);
+void  list_construct(List *l);
+void  list_destruct(List *l);
+void  list_push_back(List *l, void *data);
+void  list_back(List *l, void* data);
+void* _list_get(List *l, uint16_t i);
 
 #define list_get(l_ptr, i, Type) ((Type)_list_get(l_ptr, i))
+
+
+//#########################################################################################################sparseSet
+
+
+void sparseSet_construct();
+void sparseSet_destruct();
+
+#define sparseSet_insert()\
+#define sparseSet_
 
 
 #endif
