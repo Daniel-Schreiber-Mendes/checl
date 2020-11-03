@@ -13,7 +13,7 @@ make: $(OBJ)
 
 test: unit_test.o
 	gcc -o unit_test unit_test.o -lchecl
-	./test
+	./unit_test
 
 unit_test.o: unit_test.c
 	gcc -c -std=c99 unit_test.c

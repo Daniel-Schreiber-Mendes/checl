@@ -190,6 +190,12 @@ void    hashMap_pointers_free(HashMap const *m);
 		(Type*)(map_ptr)->data[key];\
 	})
 
+//returns false if the indexed element is null or the key is bigger than capazcity
+#define hashMap_isnull(map_ptr, Type, key)\
+	({\
+		((Type*)(map_ptr)->data[key] || key > (map_ptr)->cap)\
+	})
+
 //iterates over all elements that are not NULL
 #define hashMap_foreach(map_ptr, Type, alias, expr)\
 	({\
@@ -263,6 +269,7 @@ void sparseSet_construct(SparseSet *s, uint16_t elementSize, uint32_t elementCou
 void sparseSet_destruct(SparseSet const *s);
 
 #define sparseSet_insert(set, Type, key)\
+	checl_assert((set)->denseSize + 1 <= (set)->denseCapacity);\
 	if(key >= (set)->sparseCapacity)\
 		(set)->sparse = realloc((set)->sparse, sizeof(Type) * ((set)->sparseCapacity = key * 2));\
 	if((((Type*)(set)->sparse)[key] = (set)->denseSize++) >= (set)->denseCapacity)\
@@ -270,6 +277,7 @@ void sparseSet_destruct(SparseSet const *s);
 	((Type*)(set)->dense)[((Type*)(set)->sparse)[key]] = key;
 
 #define sparseSet_erase(set, Type, key)\
+	checl_assert(key < (set)->denseCapacity);\
 	((Type*)(set)->dense)[((Type*)(set)->sparse)[key]] = ((Type*)(set)->dense)[--(set)->denseSize];\
 	((Type*)(set)->sparse)[((Type*)(set)->dense)[((Type*)(set)->sparse)[key]]] = ((Type*)(set)->dense)[((Type*)(set)->sparse)[key]];
 
@@ -277,21 +285,26 @@ void sparseSet_destruct(SparseSet const *s);
 void dsparseSet_construct(DSparseSet *s, uint16_t elementSize, uint16_t dataSize, uint32_t elementCount);
 void dsparseSet_destruct(DSparseSet const *s);
 
-#define dsparseSet_insert(set, Type, key, data)\
-	((Type*)(set)->dense)[((Type*)(set)->sparse)[key]] = key;
+#define dsparseSet_insert(set, KeyType, key)\
+	checl_assert((set)->denseSize + 1 <= (set)->denseCapacity);\
+	if (key >= (set)->sparseCapacity)\
+		(set)->sparse = realloc((set)->sparse, sizeof(KeyType) * ((set)->sparseCapacity = key * 2));\
+	((KeyType*)(set)->dense)[((KeyType*)(set)->sparse)[key]] = key;\
+	((KeyType*)(set)->sparse)[key] = (set)->denseSize++;
 
 //this needs to be checked because if it evaluates to false that means the key to be removed is the last one
-#define dsparseSet_erase(set, Type, key)\
-	if((set)->sparse[key] < (set)->denseSize - 1)\
+#define dsparseSet_erase(set, KeyType, Type, key)\
+	checl_assert(key < (set)->denseCapacity);\
+	if(((KeyType*)(set)->sparse)[key] < (set)->denseSize - 1)\
 	{\
-		memcpy((set)->data + (set)->sparse[key] * sizeof(Type), (set)->data + (set)->denseSize * sizeof(Type), sizeof(Type));\
-		(set)->dense[(set)->sparse[key]] = (set)->dense[(set)->denseSize];\
-		(set)->sparse[key] = (set)->sparse[(set)->dense[(set)->denseSize]];\
+		memcpy((set)->data + ((KeyType*)(set)->sparse)[key] * sizeof(Type), (set)->data + (set)->denseSize * sizeof(Type), sizeof(Type));\
+		(set)->dense[((KeyType*)(set)->sparse)[key]] = ((KeyType*)(set)->dense)[(set)->denseSize];\
+		(set)->sparse[key] = ((KeyType*)(set)->sparse)[((KeyType*)(set)->dense)[(set)->denseSize]];\
 	}\
 	--(set)->denseSize;
 
-#define dsparseSet_get(set, Type, key)\
-	((Type*)(set)->data)[((Type*)(set)->dense)[((Type*)(set)->sparse)[key]]];
+#define dsparseSet_get(set, KeyType, Type, key)\
+	((Type*)(set)->data)[((KeyType*)(set)->sparse)[key]]
 
 
 
